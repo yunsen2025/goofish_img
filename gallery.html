@@ -1,659 +1,284 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片画廊 - 闲鱼图床</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-        
-        .nav {
-            background: #f8f9fa;
-            padding: 20px;
-            border-bottom: 1px solid #dee2e6;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .nav-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            background: #6c757d;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-        
-        .nav-btn:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-        
-        .nav-btn.active {
-            background: #007bff;
-        }
-        
-        .stats {
-            background: #e9ecef;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #007bff;
-        }
-        
-        .stat-label {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .category-section {
-            margin-bottom: 40px;
-        }
-        
-        .category-title {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #007bff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .category-count {
-            background: #007bff;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-        }
-        
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .image-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .image-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .image-container {
-            position: relative;
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-        }
-        
-        .image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        
-        .image-card:hover img {
-            transform: scale(1.05);
-        }
-        
-        .image-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .image-card:hover .image-overlay {
-            opacity: 1;
-        }
-        
-        .overlay-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .overlay-btn {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        
-        .overlay-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .image-info {
-            padding: 15px;
-        }
-        
-        .image-name {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-            word-break: break-all;
-        }
-        
-        .image-meta {
-            font-size: 0.9em;
-            color: #6c757d;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .image-time {
-            font-size: 0.8em;
-            color: #adb5bd;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-        }
-        
-        .modal-content {
-            position: relative;
-            margin: 5% auto;
-            max-width: 90%;
-            max-height: 90%;
-        }
-        
-        .modal-image {
-            width: 100%;
-            height: auto;
-            max-height: 80vh;
-            object-fit: contain;
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .modal-info {
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 20px;
-            margin-top: 10px;
-            border-radius: 5px;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #6c757d;
-        }
-        
-        .error {
-            text-align: center;
-            padding: 50px;
-            color: #dc3545;
-        }
-        
-        .empty {
-            text-align: center;
-            padding: 50px;
-            color: #6c757d;
-        }
-        
-        .search-box {
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 2px solid #dee2e6;
-            border-radius: 25px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-        
-        .search-input:focus {
-            border-color: #007bff;
-        }
-        
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-        
-        @media (max-width: 768px) {
-            .gallery-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 15px;
-            }
-            
-            .stats {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .nav-buttons {
-                justify-content: flex-start;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图片画廊 - 闲鱼图床</title>
+  <style>
+    :root { --border:#e5e5e5; --text:#222; --muted:#666; --bg:#f6f6f6; --primary:#0d6efd; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 960px; margin: 40px auto; padding: 0 16px; }
+    .card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:16px; }
+    .top { display:flex; align-items:center; justify-content: space-between; margin-bottom:12px; }
+    h1 { font-size:20px; margin:0; font-weight:600; }
+    .top a { color: var(--primary); text-decoration: none; font-size: 13px; }
+    .muted { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+  .controls { display:grid; grid-template-columns: 1fr 220px auto auto auto; gap: 8px; align-items: center; }
+    .controls input[type="text"], .controls select, .controls button { padding: 8px 10px; font-size:14px; border:1px solid var(--border); border-radius:6px; background:#fff; }
+    .controls button { cursor: pointer; }
+    .controls .primary { background: var(--primary); color:#fff; border-color: var(--primary); }
+    .stats { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+    .grid { margin-top: 12px; display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .item { border:1px solid var(--border); border-radius:6px; overflow:hidden; background:#fff; display:flex; flex-direction: column; }
+    .item img { display:block; width:100%; height:140px; object-fit: cover; background:#fafafa; }
+    .info { padding:8px; }
+    .name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meta { margin-top:4px; font-size: 12px; color: var(--muted); display:flex; justify-content: space-between; }
+  .acts { display:flex; gap:6px; padding:8px; border-top:1px solid var(--border); flex-wrap: wrap; }
+  .acts button, .acts a { padding:6px 8px; font-size:12px; border:1px solid var(--border); background:#fff; color:#000; border-radius:6px; cursor:pointer; text-decoration:none; }
+  .acts .danger { border-color:#e74c3c; color:#e74c3c; }
+    .empty, .error, .loading { padding: 24px; text-align: center; color: var(--muted); }
+  .cat-panel { margin-top:12px; padding:12px; border:1px dashed var(--border); border-radius:6px; background:#fafafa; }
+  .cat-row { display:grid; grid-template-columns: 1fr 1fr auto auto; gap:8px; margin-top:8px; }
+  .cat-row input, .cat-row select, .cat-row button { padding:8px 10px; font-size:13px; border:1px solid var(--border); border-radius:6px; background:#fff; }
+  .cat-row button { cursor:pointer; }
+    @media (max-width: 720px) {
+      .controls { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🖼️ 图片画廊</h1>
-            <p>浏览和管理您上传的所有图片</p>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <h1>图片画廊</h1>
+        <a href="index.html">返回上传</a>
+      </div>
+      <p class="muted">查看与管理已上传的图片，可按分类与名称筛选。</p>
+
+      <div class="controls">
+        <input id="kw" type="text" placeholder="搜索文件名" />
+        <select id="selCategory"></select>
+        <button id="btnRefresh">刷新</button>
+        <button id="btnExport">导出数据</button>
+        <button id="btnOpenJson" class="primary" title="打开原始数据">打开JSON</button>
+      </div>
+
+      <div class="cat-panel" id="catPanel">
+        <div class="muted">分类管理：可以重命名分类或删除分类（删除分类仅把该分类下图片移至“未分类”）。</div>
+        <div class="cat-row">
+          <select id="catFrom"></select>
+          <input id="catTo" type="text" placeholder="新分类名（用于重命名）" />
+          <button id="btnRenameCat">重命名</button>
+          <button id="btnDeleteCat" class="danger">删除分类</button>
         </div>
-        
-        <div class="nav">
-            <div class="nav-buttons">
-                <button class="nav-btn active" onclick="showCategory('all')">全部图片</button>
-                <button class="nav-btn" onclick="showCategory('二次元壁纸')">二次元壁纸</button>
-                <button class="nav-btn" onclick="showCategory('教程')">教程</button>
-                <button class="nav-btn" onclick="showCategory('日常')">日常</button>
-                <button class="nav-btn" onclick="refreshGallery()">🔄 刷新</button>
-                <button class="nav-btn" onclick="exportData()">📥 导出数据</button>
-                <button class="nav-btn" onclick="window.location.href='index.html'">📤 上传图片</button>
-            </div>
-        </div>
-        
-        <div class="stats" id="stats">
-            <div class="stat-item">
-                <div class="stat-number" id="totalCount">0</div>
-                <div class="stat-label">总图片数</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="categoryCount">0</div>
-                <div class="stat-label">分类数</div>
-            </div>
-        </div>
-        
-        <div class="content">
-            <div class="search-box">
-                <input type="text" class="search-input" id="searchInput" placeholder="搜索图片名称...">
-                <span class="search-icon">🔍</span>
-            </div>
-            
-            <div id="galleryContent">
-                <div class="loading">正在加载图片...</div>
-            </div>
-        </div>
+      </div>
+
+      <div class="stats" id="stats">统计：总数 0 · 分类 0</div>
+
+      <div id="grid" class="grid">
+        <div class="loading">正在加载…</div>
+      </div>
     </div>
-    
-    <!-- 图片预览模态框 -->
-    <div id="imageModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <img class="modal-image" id="modalImage" src="" alt="">
-            <div class="modal-info" id="modalInfo"></div>
+  </div>
+
+  <script>
+    const el = (id)=>document.getElementById(id);
+    const grid = el('grid');
+    const kw = el('kw');
+    const selCategory = el('selCategory');
+  const stats = el('stats');
+    const btnRefresh = el('btnRefresh');
+    const btnExport = el('btnExport');
+    const btnOpenJson = el('btnOpenJson');
+  const catFrom = el('catFrom');
+  const catTo = el('catTo');
+  const btnRenameCat = el('btnRenameCat');
+  const btnDeleteCat = el('btnDeleteCat');
+
+    let all = [];
+    let filtered = [];
+
+    window.addEventListener('load', () => {
+      load();
+      kw.addEventListener('input', applyFilter);
+      selCategory.addEventListener('change', applyFilter);
+      btnRefresh.addEventListener('click', () => { grid.innerHTML = '<div class="loading">正在刷新…</div>'; load(); });
+      btnExport.addEventListener('click', exportData);
+      btnOpenJson.addEventListener('click', ()=>{ window.open('gallery.json', '_blank'); });
+      btnRenameCat.addEventListener('click', onRenameCategory);
+      btnDeleteCat.addEventListener('click', onDeleteCategory);
+    });
+
+    async function load(){
+      try {
+        const res = await fetch('gallery.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('加载失败');
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error('数据格式错误');
+        all = data;
+        buildCategories(all);
+        applyFilter();
+      } catch (e) {
+        grid.innerHTML = `<div class="error">${escapeHtml(e.message || '加载出错')}</div>`;
+        stats.textContent = '统计：总数 0 · 分类 0';
+      }
+    }
+
+    function buildCategories(list){
+      const set = new Set(['全部']);
+      list.forEach(x => x.category && set.add(x.category));
+      selCategory.innerHTML = '';
+      for (const c of set){
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c; selCategory.appendChild(opt);
+      }
+      // 分类管理下拉（不含“全部”）
+      const cats = Array.from(set).filter(x => x !== '全部');
+      catFrom.innerHTML = '';
+      for (const c of cats){
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c; catFrom.appendChild(opt);
+      }
+    }
+
+    function applyFilter(){
+      const q = (kw.value || '').toLowerCase();
+      const cat = selCategory.value || '全部';
+      filtered = all.filter(x => {
+        const okCat = (cat === '全部') ? true : (x.category === cat);
+        const okKw = !q || String(x.fileName || '').toLowerCase().includes(q);
+        return okCat && okKw;
+      });
+      updateStats();
+      render();
+    }
+
+    function updateStats(){
+      const cats = new Set(all.map(x=>x.category).filter(Boolean));
+      stats.textContent = `统计：总数 ${all.length} · 分类 ${cats.size}`;
+    }
+
+    function render(){
+      if (!filtered.length){
+        grid.innerHTML = '<div class="empty">暂无图片</div>';
+        return;
+      }
+      const frag = document.createDocumentFragment();
+      grid.innerHTML = '';
+      for (const item of filtered){
+        frag.appendChild(renderItem(item));
+      }
+      grid.appendChild(frag);
+    }
+
+    function renderItem(it){
+      const d = document.createElement('div');
+      d.className = 'item';
+      const url = String(it.url || '');
+      const name = String(it.fileName || '图片');
+      d.innerHTML = `
+        <img src="${escapeAttr(url)}" alt="" loading="lazy" onerror="this.style.display='none'" />
+        <div class="info">
+          <div class="name" title="${escapeAttr(name)}">${escapeHtml(name)}</div>
+          <div class="meta"><span>${escapeHtml(it.category || '未分类')}</span><span>${escapeHtml(it.uploadTime || '')}</span></div>
         </div>
-    </div>
-    
-    <script>
-        let galleryData = [];
-        let filteredData = [];
-        let currentCategory = 'all';
-        
-        // 页面加载时初始化
-        window.onload = function() {
-            loadGallery();
-            setupSearch();
-        };
-        
-        // 加载画廊数据
-        async function loadGallery() {
-            try {
-                const response = await fetch('gallery.json');
-                if (!response.ok) {
-                    throw new Error('无法加载画廊数据');
-                }
-                
-                galleryData = await response.json();
-                filteredData = galleryData;
-                updateStats();
-                renderGallery();
-            } catch (error) {
-                document.getElementById('galleryContent').innerHTML = 
-                    '<div class="error">加载失败：' + error.message + '</div>';
-            }
-        }
-        
-        // 更新统计信息
-        function updateStats() {
-            const totalCount = galleryData.length;
-            const categories = [...new Set(galleryData.map(item => item.category))];
-            
-            document.getElementById('totalCount').textContent = totalCount;
-            document.getElementById('categoryCount').textContent = categories.length;
-        }
-        
-        // 渲染画廊
-        function renderGallery() {
-            const content = document.getElementById('galleryContent');
-            
-            if (filteredData.length === 0) {
-                content.innerHTML = '<div class="empty">暂无图片</div>';
-                return;
-            }
-            
-            if (currentCategory === 'all') {
-                renderAllCategories();
-            } else {
-                renderSingleCategory(currentCategory);
-            }
-        }
-        
-        // 渲染所有分类
-        function renderAllCategories() {
-            const categories = {};
-            
-            filteredData.forEach(item => {
-                if (!categories[item.category]) {
-                    categories[item.category] = [];
-                }
-                categories[item.category].push(item);
-            });
-            
-            let html = '';
-            
-            for (const [category, items] of Object.entries(categories)) {
-                html += `
-                    <div class="category-section">
-                        <h3 class="category-title">
-                            ${getCategoryIcon(category)} ${category}
-                            <span class="category-count">${items.length}</span>
-                        </h3>
-                        <div class="gallery-grid">
-                            ${items.map(item => createImageCard(item)).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-            
-            document.getElementById('galleryContent').innerHTML = html;
-        }
-        
-        // 渲染单个分类
-        function renderSingleCategory(category) {
-            const items = filteredData.filter(item => item.category === category);
-            
-            const html = `
-                <div class="category-section">
-                    <h3 class="category-title">
-                        ${getCategoryIcon(category)} ${category}
-                        <span class="category-count">${items.length}</span>
-                    </h3>
-                    <div class="gallery-grid">
-                        ${items.map(item => createImageCard(item)).join('')}
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('galleryContent').innerHTML = html;
-        }
-        
-        // 创建图片卡片
-        function createImageCard(item) {
-            return `
-                <div class="image-card" onclick="openModal('${item.id}')">
-                    <div class="image-container">
-                        <img src="${item.url}" alt="${item.fileName}" loading="lazy">
-                        <div class="image-overlay">
-                            <div class="overlay-buttons">
-                                <button class="overlay-btn" onclick="event.stopPropagation(); copyUrl('${item.url}')">复制链接</button>
-                                <button class="overlay-btn" onclick="event.stopPropagation(); downloadImage('${item.url}', '${item.fileName}')">下载</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="image-info">
-                        <div class="image-name">${item.fileName}</div>
-                        <div class="image-meta">
-                            <span>${item.category}</span>
-                        </div>
-                        <div class="image-time">${item.uploadTime}</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // 获取分类图标
-        function getCategoryIcon(category) {
-            const icons = {
-                '二次元壁纸': '🎨',
-                '教程': '📚',
-                '日常': '📷',
-                '未分类': '📁'
-            };
-            return icons[category] || '📁';
-        }
-        
-        // 显示分类
-        function showCategory(category) {
-            currentCategory = category;
-            
-            // 更新按钮状态
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // 过滤数据
-            if (category === 'all') {
-                filteredData = galleryData.filter(item => 
-                    item.fileName.toLowerCase().includes(document.getElementById('searchInput').value.toLowerCase())
-                );
-            } else {
-                filteredData = galleryData.filter(item => 
-                    item.category === category && 
-                    item.fileName.toLowerCase().includes(document.getElementById('searchInput').value.toLowerCase())
-                );
-            }
-            
-            renderGallery();
-        }
-        
-        // 设置搜索功能
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                
-                if (currentCategory === 'all') {
-                    filteredData = galleryData.filter(item => 
-                        item.fileName.toLowerCase().includes(searchTerm)
-                    );
-                } else {
-                    filteredData = galleryData.filter(item => 
-                        item.category === currentCategory && 
-                        item.fileName.toLowerCase().includes(searchTerm)
-                    );
-                }
-                
-                renderGallery();
-            });
-        }
-        
-        // 打开模态框
-        function openModal(imageId) {
-            const item = galleryData.find(img => img.id === imageId);
-            if (!item) return;
-            
-            document.getElementById('modalImage').src = item.url;
-            document.getElementById('modalInfo').innerHTML = `
-                <h3>${item.fileName}</h3>
-                <p><strong>分类：</strong>${item.category}</p>
-                <p><strong>上传时间：</strong>${item.uploadTime}</p>
-                <p><strong>链接：</strong><a href="${item.url}" target="_blank" style="color: #007bff;">${item.url}</a></p>
-            `;
-            
-            document.getElementById('imageModal').style.display = 'block';
-        }
-        
-        // 关闭模态框
-        function closeModal() {
-            document.getElementById('imageModal').style.display = 'none';
-        }
-        
-        // 复制链接
-        function copyUrl(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                alert('链接已复制到剪贴板');
-            }).catch(() => {
-                prompt('请手动复制链接：', url);
-            });
-        }
-        
-        // 下载图片
-        function downloadImage(url, fileName) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-        
-        // 刷新画廊
-        function refreshGallery() {
-            document.getElementById('galleryContent').innerHTML = '<div class="loading">正在刷新...</div>';
-            loadGallery();
-        }
-        
-        // 导出数据
-        function exportData() {
-            const dataStr = JSON.stringify(galleryData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'gallery_export_' + new Date().toISOString().slice(0, 10) + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            URL.revokeObjectURL(url);
-        }
-        
-        // 格式化文件大小
-        function formatFileSize(bytes) {
-            if (!bytes) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-        
-        // 点击模态框外部关闭
-        window.onclick = function(event) {
-            const modal = document.getElementById('imageModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
-        
-        // ESC键关闭模态框
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeModal();
-            }
+        <div class="acts">
+          <button data-url="${escapeAttr(url)}">复制</button>
+          <a href="${escapeAttr(url)}" target="_blank" rel="noopener">打开</a>
+          <button data-dl="${escapeAttr(url)}" data-name="${escapeAttr(name)}">下载</button>
+          <button data-del="${escapeAttr(it.id || '')}" class="danger">删除</button>
+        </div>
+      `;
+      const copyBtn = d.querySelector('button[data-url]');
+      const dlBtn = d.querySelector('button[data-dl]');
+      const delBtn = d.querySelector('button[data-del]');
+      copyBtn.addEventListener('click', ()=>copy(copyBtn.dataset.url));
+      dlBtn.addEventListener('click', ()=>download(dlBtn.dataset.dl, dlBtn.dataset.name));
+      delBtn.addEventListener('click', ()=>onDeleteItem(delBtn.dataset.del));
+      return d;
+    }
+
+    async function onDeleteItem(id){
+      if (!id) return;
+      if (!confirm('确认从画廊中删除该图片记录吗？此操作不会删除远端图片。')) return;
+      try {
+        const res = await fetch('manage.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', id })
         });
-    </script>
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || '删除失败');
+        // 本地数据同步并刷新
+        all = all.filter(x => x.id !== id);
+        applyFilter();
+      } catch (e) {
+        alert(e.message || '删除失败');
+      }
+    }
+
+    async function onRenameCategory(){
+      const from = catFrom.value || '';
+      const to = (catTo.value || '').trim();
+      if (!from || !to) { alert('请选择原分类并填写新分类名'); return; }
+      try {
+        const res = await fetch('manage.php', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'renameCategory', from, to })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || '重命名失败');
+        // 刷新本地数据
+        all.forEach(x => { if (x.category === from) x.category = to; });
+        buildCategories(all);
+        applyFilter();
+        catTo.value = '';
+        alert('已重命名');
+      } catch (e) { alert(e.message || '重命名失败'); }
+    }
+
+    async function onDeleteCategory(){
+      const name = catFrom.value || '';
+      if (!name) { alert('请选择要删除的分类'); return; }
+      if (!confirm(`确认删除分类 “${name}” 吗？该分类下图片将移动到“未分类”。`)) return;
+      try {
+        const res = await fetch('manage.php', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'deleteCategory', name, replacement: '未分类' })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || '删除分类失败');
+        // 刷新本地数据
+        all.forEach(x => { if (x.category === name) x.category = '未分类'; });
+        buildCategories(all);
+        applyFilter();
+        alert('已删除分类');
+      } catch (e) { alert(e.message || '删除分类失败'); }
+    }
+
+    function copy(text){
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(()=>{}).catch(()=>fallbackCopy(text));
+      } else { fallbackCopy(text); }
+    }
+    function fallbackCopy(text){
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch {}
+      document.body.removeChild(ta);
+    }
+    function download(url, name){
+      if (!url) return;
+      const a = document.createElement('a');
+      a.href = url; a.download = name || 'image'; a.target = '_blank';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+
+    function exportData(){
+      const dataStr = JSON.stringify(all, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'gallery_export_' + new Date().toISOString().slice(0,10) + '.json';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[c])); }
+    function escapeAttr(s){ return String(s ?? '').replace(/["']/g, c=>({ '"':'&quot;','\'':'&#39;' }[c])); }
+  </script>
 </body>
 </html>
